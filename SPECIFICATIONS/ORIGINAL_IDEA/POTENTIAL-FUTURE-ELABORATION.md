@@ -1,6 +1,6 @@
 # Simmer: exploration of a possible future elaboration
 
-> **Status: parked, not the build target.** This is the full design exploration from September/October 2026. It was critically reviewed and judged to be nine-tenths about what happens once the writing habit exists and one-tenth about creating it. The actual build target is **MVP.md** in this repo. Everything here (modes as a schedule, the people list, corpus revisits, the base/orbit dial, the no-praise rule) is deferred until the MVP has produced at least thirty sessions and a corpus to reason about. Treat this as a reference for *why* the data model has the shape it has, and as a menu for later, not as a spec.
+> **Status: parked, not the build target.** This is the full design exploration from September/October 2026. It was critically reviewed and judged to be nine-tenths about what happens once the writing habit exists and one-tenth about creating it. The actual build target is **MVP-IDEA.md** in this repo. Everything here (modes as a schedule, the people list, corpus revisits, the base/orbit dial, the no-praise rule) is deferred until the MVP has produced at least thirty sessions and a corpus to reason about. Treat this as a reference for *why* the data model has the shape it has, and as a menu for later, not as a spec.
 
 *Duolingo for thinking in writing.* An email-driven service that builds a writing habit and breaks writer's block by handing you a question (prompt) via email the night before and an email for writing the response the morning after.
 
@@ -214,7 +214,7 @@ The author uses it for 30 consecutive weekdays (sessions, not streaks: 30 sessio
 
 In this order; the prompt-generation eval comes before any plumbing because the v1 success test is entirely about prompt quality.
 
-1. "Read MVP-INITIATION.md. The product is called Simmer. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 4 as constraints on any code that calls the model."
+1. "Read MVP-IDEA.md. The product is called Simmer. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 4 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 7 and write a small eval: 20 topic/people configs, generate prompts across all five modes in both tight and wide orbit, grade against the good/bad rules. Include at least 3 revisit cases built from a fake corpus."
 3. "Implement the data model in D1 with migrations, plus the session_view derivation, with tests for thread-based attribution and the append rule for multiple submissions."
 4. "Build the inbound Worker as a Resend `email.received` webhook (verify the signature): strip quoted history, classify as nudge_request / submission using the last-line `stuck` rule, attribute to session by In-Reply-To, store both raw and cleaned content. Test against reply samples from at least three mail clients."
