@@ -97,10 +97,12 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 ## 10. Stack [decided]
 
 - Cloudflare Workers + Cron Triggers; D1 for the tables above
-- Resend for both directions: Send API out; Receiving on a dedicated subdomain of echoreflex.me, `email.received` webhook into a Worker, signature verified
+- Cloudflare Email Service for both directions: Email Routing on simmer.hultberg.org delivers inbound mail to the Worker's `email()` handler; the `send_email` binding sends out, with `In-Reply-To`/`References` headers for threading. No API key.
 - Anthropic API for generation and nudges
-- Signup: one static page with an email field, or simply "email hello@simmer.echoreflex.me"
-- Lives at simmer.echoreflex.me
+- Signup: one static page with an email field, or simply "email hello@simmer.hultberg.org"
+- Lives at simmer.hultberg.org
+
+Email moved from Resend on echoreflex.me to Cloudflare on simmer.hultberg.org on 2026-10-04. Reasons: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing, and the subdomain keeps Simmer separate from personal mail. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
 
 ## 11. Explicitly not in this build
 
@@ -111,7 +113,7 @@ Modes as a visible schedule, the people list, corpus revisits, the base/orbit di
 1. "Read MVP-IDEA.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 6. Write an eval: 10 briefs (including two 'I don't know yet'), generate a week of questions each, grade against section 6. Make the day-1 questions deliberately easy."
 3. "Implement the data model in D1 with migrations and the derived session view; test thread attribution, quote stripping, and the append rule."
-4. "Build the Resend `email.received` webhook Worker: verify signature, strip quotes, classify (`stuck` last line / `brief:` first line / otherwise submission), attribute, store raw and clean."
+4. "Build the Worker's `email()` handler for inbound mail: parse the raw message, strip quotes, classify (`stuck` last line / `brief:` first line / otherwise submission), attribute, store raw and clean."
 5. "Build the two cron sends and the receipt, including the day-4 no-reply email and the pause logic."
 6. "Build the nudge responder with the post-check for rule 1 and the receipt's one-sentence observation with the post-check for rule 4."
 
