@@ -27,11 +27,15 @@ One email thread per session.
 
 ## 3. Setup [decided]
 
-No form. Signup is an email address and a timezone. Everything else is one email exchange:
+No form, no signup page. The user emails simmer@hultberg.org with anything. An address Simmer doesn't know yet gets one reply:
 
-> **What are you simmering?** A project, a book idea, a discipline, a question you can't leave alone, or "I don't know yet." A sentence or a paragraph, whatever you have. Also tell me roughly when you go to bed and when you'd like the morning question.
+> **What are you simmering?** A project, a book idea, a discipline, a question you can't leave alone, or "I don't know yet." A sentence or a paragraph, whatever you have. Also tell me roughly when you go to bed, when you'd like the morning question, and which timezone you're in.
 
-The reply is stored verbatim as the user's `brief` and is the only input the generator has on day one. "I don't know yet" is a valid answer; the generator then ranges across whatever else the reply mentioned. Users can change their brief at any time by replying to any email with `brief:` on the first line.
+The reply to that email (attributed by `In-Reply-To`, like everything else) is stored verbatim as the user's **brief**, never as a submission: the base every question is generated from, and the only input the generator has on day one. "I don't know yet" is a valid answer; the generator then ranges across whatever else the reply mentioned.
+
+Simmer only answers senders on an allowlist (initially the author's Gmail), so mail from anyone else gets no reply. Inviting someone means adding their address.
+
+**Changing the brief.** Reply to any Simmer email, or send a fresh one, with `brief:` on the first line. Everything after it replaces the whole brief. Simmer replies once, quoting the new brief back so the user can see what it understood. The change applies from the next evening question not yet generated. Earlier briefs are kept, not overwritten, so questions can be traced to the brief they came from. A `brief:` reply is never counted as a submission.
 
 Defaults: evening send = bedtime minus 60 min; morning send = 07:00 local if not stated; word floor 150 (counts as a session), target 300 (mentioned once in the morning email, never enforced).
 
@@ -58,7 +62,9 @@ Enforce in code where possible, not just in the system prompt.
 
 ## 6. Prompt generation [open, the only thing that matters]
 
-Inputs: the brief, the last 14 prompts (avoid repetition), the last 5 pieces (for context, not for revisiting yet), the day number.
+Inputs: the brief, the last 14 prompts (avoid repetition), the last 5 pieces (for context), the day number.
+
+**Mostly independent, occasionally a follow-up.** Most evenings the question stands on its own: it comes from the brief, with recent pieces as background. Now and then, when the most recent piece clearly left a thread worth pulling (an unresolved tension, a claim made in passing, a change of mind), the question follows it up instead. The generator decides, and logs which piece it followed and why. Generation never waits for a reply: if no new piece has arrived when the evening question is due, it is an ordinary independent question, so a skipped or late morning never stalls the loop.
 
 A good question is one to three sentences, has a tension, can be answered in 300 words from what the user already knows, stays inside the brief, and ends with "let it simmer."
 
@@ -75,9 +81,11 @@ An unanswered session is "not started," never "missed." The thread stays open; a
 Email is the transport, not the model. Every session is an ordered event stream so a future web view renders the same data.
 
 ```
-user           id, email, timezone, bedtime, cue_time, brief, word_floor, word_target,
+user           id, email, timezone, bedtime, cue_time, word_floor, word_target,
                paused (bool), paused_at, created_at
-prompt         id, user_id, text, kind, candidates (json), generated_at
+brief          id, user_id, text, created_at            (current brief = latest row)
+prompt         id, user_id, brief_id, text, kind, follows_up_session_id (nullable),
+               candidates (json), generated_at
 session        id, user_id, prompt_id, scheduled_for, created_at
 session_event  id, session_id, seq, type, direction, channel, content, raw_content,
                word_count, occurred_at, provider_message_id, in_reply_to
@@ -99,7 +107,7 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 - Cloudflare Workers + Cron Triggers; D1 for the tables above
 - Cloudflare Email Service for both directions: Email Routing sends mail for simmer@hultberg.org (an address rule on the existing hultberg.org setup) to the Worker's `email()` handler; mail goes out from the same address through the `send_email` binding, with `In-Reply-To`/`References` headers for threading. No API key.
 - Anthropic API for generation and nudges
-- Signup: one static page with an email field, or simply "email simmer@hultberg.org"
+- Signup: email simmer@hultberg.org (see section 3); no signup page
 - Email address: simmer@hultberg.org. Any web part is a separate Worker at simmer.hultberg.org
 
 Why Cloudflare Email Service on hultberg.org rather than Resend on echoreflex.me: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing and sending for other projects, and an address rule for simmer@ leaves the rest of its mail alone, so no subdomain is needed. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
@@ -113,7 +121,7 @@ Modes as a visible schedule, the people list, corpus revisits, the base/orbit di
 1. "Read MVP-IDEA.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 6. Write an eval: 10 briefs (including two 'I don't know yet'), generate a week of questions each, grade against section 6. Make the day-1 questions deliberately easy."
 3. "Implement the data model in D1 with migrations and the derived session view; test thread attribution, quote stripping, and the append rule."
-4. "Build the Worker's `email()` handler for inbound mail: parse the raw message, strip quotes, classify (`stuck` last line / `brief:` first line / otherwise submission), attribute, store raw and clean."
+4. "Build the Worker's `email()` handler for inbound mail: drop senders not on the allowlist; parse the raw message, strip quotes; send the setup question to an allowlisted address with no user yet, and store the reply to it as the first brief; classify the rest (`stuck` last line / `brief:` first line, confirmed by quoting the new brief back / otherwise submission), attribute, store raw and clean."
 5. "Build the two cron sends and the receipt, including the day-4 no-reply email and the pause logic."
 6. "Build the nudge responder with the post-check for rule 1 and the receipt's one-sentence observation with the post-check for rule 4."
 
