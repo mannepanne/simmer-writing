@@ -97,12 +97,12 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 ## 10. Stack [decided]
 
 - Cloudflare Workers + Cron Triggers; D1 for the tables above
-- Cloudflare Email Service for both directions: Email Routing on simmer.hultberg.org delivers inbound mail to the Worker's `email()` handler; the `send_email` binding sends out, with `In-Reply-To`/`References` headers for threading. No API key.
+- Cloudflare Email Service for both directions: Email Routing sends mail for simmer@hultberg.org (an address rule on the existing hultberg.org setup) to the Worker's `email()` handler; mail goes out from the same address through the `send_email` binding, with `In-Reply-To`/`References` headers for threading. No API key.
 - Anthropic API for generation and nudges
-- Signup: one static page with an email field, or simply "email hello@simmer.hultberg.org"
-- Lives at simmer.hultberg.org
+- Signup: one static page with an email field, or simply "email simmer@hultberg.org"
+- Email address: simmer@hultberg.org. Any web part is a separate Worker at simmer.hultberg.org
 
-Why Cloudflare Email Service on simmer.hultberg.org rather than Resend on echoreflex.me: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing, and the subdomain keeps Simmer separate from personal mail. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
+Why Cloudflare Email Service on hultberg.org rather than Resend on echoreflex.me: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing and sending for other projects, and an address rule for simmer@ leaves the rest of its mail alone, so no subdomain is needed. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
 
 ## 11. Explicitly not in this build
 
