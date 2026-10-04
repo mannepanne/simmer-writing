@@ -31,9 +31,9 @@ No form, no signup page. The user emails simmer@hultberg.org with anything. An a
 
 > **What are you simmering?** A project, a book idea, a discipline, a question you can't leave alone, or "I don't know yet." A sentence or a paragraph, whatever you have. Also tell me roughly when you go to bed, when you'd like the morning question, and which timezone you're in.
 
-The reply is stored verbatim as the user's **brief**: the base every question is generated from, and the only input the generator has on day one. "I don't know yet" is a valid answer; the generator then ranges across whatever else the reply mentioned.
+The reply to that email (attributed by `In-Reply-To`, like everything else) is stored verbatim as the user's **brief**, never as a submission: the base every question is generated from, and the only input the generator has on day one. "I don't know yet" is a valid answer; the generator then ranges across whatever else the reply mentioned.
 
-Simmer only answers senders on an allowlist (the author's Gmail for now), so mail from anyone else gets no reply. Inviting someone means adding their address.
+Simmer only answers senders on an allowlist (initially the author's Gmail), so mail from anyone else gets no reply. Inviting someone means adding their address.
 
 **Changing the brief.** Reply to any Simmer email, or send a fresh one, with `brief:` on the first line. Everything after it replaces the whole brief. Simmer replies once, quoting the new brief back so the user can see what it understood. The change applies from the next evening question not yet generated. Earlier briefs are kept, not overwritten, so questions can be traced to the brief they came from. A `brief:` reply is never counted as a submission.
 
@@ -121,7 +121,7 @@ Modes as a visible schedule, the people list, corpus revisits, the base/orbit di
 1. "Read MVP-IDEA.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 6. Write an eval: 10 briefs (including two 'I don't know yet'), generate a week of questions each, grade against section 6. Make the day-1 questions deliberately easy."
 3. "Implement the data model in D1 with migrations and the derived session view; test thread attribution, quote stripping, and the append rule."
-4. "Build the Worker's `email()` handler for inbound mail: parse the raw message, strip quotes, classify (`stuck` last line / `brief:` first line / otherwise submission), attribute, store raw and clean."
+4. "Build the Worker's `email()` handler for inbound mail: drop senders not on the allowlist; parse the raw message, strip quotes; send the setup question to an allowlisted address with no user yet, and store the reply to it as the first brief; classify the rest (`stuck` last line / `brief:` first line, confirmed by quoting the new brief back / otherwise submission), attribute, store raw and clean."
 5. "Build the two cron sends and the receipt, including the day-4 no-reply email and the pause logic."
 6. "Build the nudge responder with the post-check for rule 1 and the receipt's one-sentence observation with the post-check for rule 4."
 
