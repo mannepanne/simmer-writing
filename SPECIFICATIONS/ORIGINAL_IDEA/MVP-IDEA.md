@@ -5,7 +5,7 @@ A question arrives by email before bed. You reply to it in the morning. If you'r
 
 Tagline: *A question at night. Your reflection by morning.*
 Status: build target. Author: Magnus. Date: 2026-10-04.
-The fuller design exploration lives in FUTURE-ELABORATION.md; it is parked, not part of this build.
+The fuller design exploration lives in POTENTIAL-FUTURE-ELABORATION.md; it is parked, not part of this build.
 
 ---
 
@@ -90,7 +90,7 @@ session_event  id, session_id, seq, type, direction, channel, content, raw_conte
 
 ## 9. The test [decided]
 
-Primary: **does the author reply at all in week two?** Not every day. At all. If yes, the loop works and the next question is prompt quality. If no, the cue and friction are wrong and no feature in FUTURE-ELABORATION.md will fix it.
+Primary: **does the author reply at all in week two?** Not every day. At all. If yes, the loop works and the next question is prompt quality. If no, the cue and friction are wrong and no feature in POTENTIAL-FUTURE-ELABORATION.md will fix it.
 
 Secondary, if primary passes: thirty sessions in roughly six weeks, then an honest answer to "were the questions good enough to get out of bed for?"
 
@@ -104,11 +104,11 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 
 ## 11. Explicitly not in this build
 
-Modes as a visible schedule, the people list, corpus revisits, the base/orbit dial, weekly digests, any web editor or word counter, cohorts, payments, current events, an app. All described in FUTURE-ELABORATION.md. Revisit after the secondary test.
+Modes as a visible schedule, the people list, corpus revisits, the base/orbit dial, weekly digests, any web editor or word counter, cohorts, payments, current events, an app. All described in POTENTIAL-FUTURE-ELABORATION.md. Revisit after the secondary test.
 
 ## 12. First prompts for Claude Code
 
-1. "Read MVP.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
+1. "Read MVP-IDEA.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 6. Write an eval: 10 briefs (including two 'I don't know yet'), generate a week of questions each, grade against section 6. Make the day-1 questions deliberately easy."
 3. "Implement the data model in D1 with migrations and the derived session view; test thread attribution, quote stripping, and the append rule."
 4. "Build the Resend `email.received` webhook Worker: verify signature, strip quotes, classify (`stuck` last line / `brief:` first line / otherwise submission), attribute, store raw and clean."
