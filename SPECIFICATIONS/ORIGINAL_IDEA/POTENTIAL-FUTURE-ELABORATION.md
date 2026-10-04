@@ -193,6 +193,8 @@ The author uses it for 30 consecutive weekdays (sessions, not streaks: 30 sessio
 
 ## 10. Suggested stack [open, author's default preferences]
 
+> **Superseded for email and domain.** The MVP uses Cloudflare Email Service on simmer.hultberg.org, not Resend on echoreflex.me; see MVP-IDEA.md section 10. The Resend, echoreflex.me and webhook references below (and in sections 11 and 12) describe the earlier plan.
+
 - Cloudflare Workers + Cron Triggers for the two scheduled sends and the generator
 - Cloudflare D1 for the tables above
 - **Email in both directions via Resend [decided].** Account exists and the domain is already verified there. Outbound via the Send API. Inbound via Resend Receiving: a receiving MX record on a dedicated subdomain (so it never interferes with any ordinary mail on the root domain), a webhook on the `email.received` event hitting a Worker, webhook signature verification on, and `In-Reply-To` parsed from the payload for session attribution. Resend stores inbound mail even if the webhook is down, which is a useful safety net during development. Cloudflare Email Routing is not used.

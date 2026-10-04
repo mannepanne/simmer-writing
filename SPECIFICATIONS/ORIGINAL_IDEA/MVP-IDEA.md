@@ -102,7 +102,7 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 - Signup: one static page with an email field, or simply "email hello@simmer.hultberg.org"
 - Lives at simmer.hultberg.org
 
-Email moved from Resend on echoreflex.me to Cloudflare on simmer.hultberg.org on 2026-10-04. Reasons: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing, and the subdomain keeps Simmer separate from personal mail. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
+Why Cloudflare Email Service on simmer.hultberg.org rather than Resend on echoreflex.me: one platform; inbound mail arrives in the Worker directly, with no webhook, signature check or separate fetch; no API key to manage; sending to verified destination addresses is free on any Workers plan, which covers the author-only test. hultberg.org already runs Email Routing, and the subdomain keeps Simmer separate from personal mail. Inviting other users needs the Workers Paid plan (sending to unverified recipients), and a later domain move would orphan old threads.
 
 ## 11. Explicitly not in this build
 
