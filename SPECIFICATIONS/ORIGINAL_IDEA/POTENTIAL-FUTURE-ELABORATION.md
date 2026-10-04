@@ -193,7 +193,7 @@ The author uses it for 30 consecutive weekdays (sessions, not streaks: 30 sessio
 
 ## 10. Suggested stack [open, author's default preferences]
 
-> **Superseded for email and domain.** The MVP uses Cloudflare Email Service on simmer.hultberg.org, not Resend on echoreflex.me; see MVP-IDEA.md section 10. The Resend, echoreflex.me and webhook references below (and in sections 11 and 12) describe the earlier plan.
+> **Superseded for email and domain.** The MVP uses Cloudflare Email Service with the address simmer@hultberg.org, not Resend on echoreflex.me; see MVP-IDEA.md section 10. The Resend, echoreflex.me and webhook references below (and in sections 11 and 12) describe the earlier plan.
 
 - Cloudflare Workers + Cron Triggers for the two scheduled sends and the generator
 - Cloudflare D1 for the tables above
