@@ -33,7 +33,7 @@ Tagline: *A question at night. Your reflection by morning.* The name: a question
 - **Model**: Anthropic API, Claude Opus 5.5 (`claude-opus-5-5`)
 - **Web**: none in the MVP; any later web part is a Worker at simmer.hultberg.org
 
-**Cloudflare account:** M Hultberg. hultberg.org already has Email Routing (catch-all forwards to the author's Gmail, which is a verified destination) and Email Sending enabled. Wrangler is logged in locally.
+**Cloudflare:** hultberg.org already has Email Routing (catch-all forwards to the author's Gmail, which is a verified destination) and Email Sending enabled. Wrangler is logged in locally.
 
 **Current status:** planning complete; no code yet. The first task is the prompt-generation eval ([MVP-IDEA.md section 12](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code), prompt 2).
 
@@ -55,7 +55,7 @@ Related invariants:
 
 ## Implementation phases
 
-Not yet defined. Phases go in `SPECIFICATIONS/` as numbered files based on [00-TEMPLATE-phase.md](./SPECIFICATIONS/00-TEMPLATE-phase.md); the suggested order is in [MVP-IDEA.md section 12](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code).
+**Current phase:** none started. Phases are not yet defined. Phases go in `SPECIFICATIONS/` as numbered files based on [00-TEMPLATE-phase.md](./SPECIFICATIONS/00-TEMPLATE-phase.md); the suggested order is in [MVP-IDEA.md section 12](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code).
 
 ### SPECIFICATIONS/
 - **Implementation phases** (numbered files) - active work-in-progress
@@ -64,9 +64,9 @@ Not yet defined. Phases go in `SPECIFICATIONS/` as numbered files based on [00-T
 
 ### REFERENCE/
 How-it-works documentation for implemented features:
-- [testing-strategy.md](./REFERENCE/testing-strategy.md) - testing philosophy and approach
-- [environment-setup.md](./REFERENCE/environment-setup.md) - API keys and environment configuration (template, not filled in yet; see Secrets below)
-- [troubleshooting.md](./REFERENCE/troubleshooting.md) - common issues and solutions
+- [testing-strategy.md](./REFERENCE/testing-strategy.md) - unit tests for deterministic code, the prompt eval for model output
+- [environment-setup.md](./REFERENCE/environment-setup.md) - accounts, secrets, Wrangler and the Cloudflare email configuration
+- [troubleshooting.md](./REFERENCE/troubleshooting.md) - email, Claude API, Wrangler and test problems
 - [pr-review-workflow.md](./REFERENCE/pr-review-workflow.md) - how the review skills work
 - [decisions/](./REFERENCE/decisions/) - Architecture Decision Records
 - [TEMPLATE-UPDATES/](./REFERENCE/TEMPLATE-UPDATES/) - migration packets for template improvements
@@ -134,7 +134,7 @@ Commands are not set up yet.
 
 - **Project outline** → [project-outline.md](./SPECIFICATIONS/ORIGINAL_IDEA/project-outline.md)
 - **Build target** → [MVP-IDEA.md](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md)
-- **Environment setup** → [environment-setup.md](./REFERENCE/environment-setup.md) (template, not filled in yet)
+- **Environment setup** → [environment-setup.md](./REFERENCE/environment-setup.md)
 - **Known issues / technical debt** → GitHub Issues with `technical-debt` label
 - **Getting unstuck** → [troubleshooting.md](./REFERENCE/troubleshooting.md)
 - **Architecture decisions** → [decisions/](./REFERENCE/decisions/)
