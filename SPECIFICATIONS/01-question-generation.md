@@ -7,34 +7,35 @@
 **Dependencies:** none. Needs `ANTHROPIC_API_KEY` in `.dev.vars` before any paid run.
 
 **Brief description:**
-Build the code that turns a brief into the evening question, and an eval that shows whether those questions are good. Question quality is the product ([MVP-IDEA.md section 6](./ORIGINAL_IDEA/MVP-IDEA.md#6-prompt-generation-open-the-only-thing-that-matters)), so it comes before any email or database work. The phase ends when the author has read a full week of generated questions for ten briefs and judged them.
+Build the code that turns a brief into the evening question, and an eval that shows whether those questions are good. Question quality is the product ([MVP-IDEA.md section 6](./ORIGINAL_IDEA/MVP-IDEA.md#6-prompt-generation-open-the-only-thing-that-matters)), so it comes before any email or database work. The eval centres on the author's own brief over 14 sessions, because the MVP's real test is whether the author still replies in week two ([section 9](./ORIGINAL_IDEA/MVP-IDEA.md#9-the-test-decided)). A few other briefs check that the prompt doesn't only work for one person.
 
 ---
 
 ## Scope and deliverables
 
 ### In scope
-- [ ] Project scaffold: `package.json`, TypeScript (strict), Vitest, the Anthropic TypeScript SDK (`@anthropic-ai/sdk`)
+- [ ] `.gitignore` entries for the eval's private and output folders, in the branch's first commit, before any private brief is written to disk
+- [ ] Project scaffold: `package.json`, TypeScript (strict), Vitest with istanbul coverage, `tsx`, the Anthropic TypeScript SDK (`@anthropic-ai/sdk`)
 - [ ] The generator system prompt, as a versioned file in the repo
-- [ ] A generator module: brief and history in, three candidates with critiques and the chosen question out
-- [ ] Deterministic checks on a question (shape rules that need no judgement)
-- [ ] Unit tests for prompt assembly, output parsing and the deterministic checks, with the Anthropic client mocked
-- [ ] The eval: case set, runner, grader, report
-- [ ] A baseline run on Claude Opus 5.5, then a comparison run on Claude Sonnet 5.5 if the author wants one
+- [ ] A generator module: brief and history in, three candidates with critiques and a chosen question out, or a typed failure
+- [ ] Deterministic checks on a question
+- [ ] Unit tests for request assembly, output parsing, candidate selection and the checks, with the Anthropic client mocked
+- [ ] The eval: case files, a runner, week-level checks, and a Markdown report for the author to read and mark
 - [ ] Docs: commands in root `CLAUDE.md`, how to run the eval in `REFERENCE/question-generation.md`, status lines in `README.md` and root `CLAUDE.md`
 
 ### Out of scope
 - Cloudflare Workers project, `wrangler.jsonc`, D1, the Workers test pool (phase 2)
-- Sending or receiving email (phases 3 and 4)
+- Sending or receiving email, and the email framing around the question, including "let it simmer" (phase 4)
 - Nudges and the receipt sentence (phase 5)
-- Tuning the prompt against the eval over many rounds. One or two revisions after the first read are in scope; systematic hill-climbing is a later decision.
+- A model-graded rubric judge, and comparing models. Both wait until there is a reason, such as inviting other users.
+- Systematic prompt tuning against the eval. One or two revisions after the author's read are in scope.
 
 ### Acceptance criteria
-- [ ] The author has approved the eval's input briefs (gate 1)
-- [ ] The author has approved the grading method after reading a graded pilot (gate 2)
-- [ ] A full baseline run on Claude Opus 5.5 is complete, with a report the author has read
-- [ ] The author's answer to "would these questions get you out of bed?" is recorded in the PR, along with any prompt revisions it led to
-- [ ] Every generated question passes the deterministic checks, or each failure is explained
+- [ ] The author has approved every case: briefs, synthetic pieces and the questions they answer
+- [ ] A full run on Claude Opus 5.5 is complete, and the author has marked every question for their own brief as *would reply*, *might* or *wouldn't*. The counts are recorded in the PR.
+- [ ] The author has made a blind pick among the three candidates for each of their own sessions. How often it matches the generator's choice is recorded in the PR.
+- [ ] Any prompt revisions, and why, are recorded in the PR with the `PROMPT_VERSION` each run used
+- [ ] Every chosen question passes the deterministic checks, or each failure is explained
 - [ ] Unit tests pass with 95%+ lines, functions and statements and 90%+ branches on `src/`
 - [ ] `npx tsc --noEmit` passes
 
@@ -45,55 +46,84 @@ Build the code that turns a brief into the evening question, and an eval that sh
 ### Architecture decisions
 
 **One generator module, used by both the eval and production**
-- Choice: `generateQuestion(input, client)` is a plain TypeScript function with the Anthropic client passed in. No Node-only or Worker-only APIs.
-- Rationale: the eval must exercise the real code path, not a copy of the API call. The same function runs inside the Worker in phase 4.
-- Alternatives considered: a separate eval-only prompt (rejected: the eval would measure something production never runs).
+- Choice: `generateQuestion(input, client)` is a plain TypeScript function with the Anthropic client passed in. No Node-only or Worker-only APIs; the prompt is a TypeScript string, not a file read at runtime.
+- Rationale: the eval must exercise the code that will run in production, not a copy of the API call. The same function runs inside the Worker in phase 4.
 
 **Three candidates, a critique each, then a choice, in one call**
-- Choice: one request returns three candidate questions, a critique of each against the rules, and the index of the chosen one, as structured output.
-- Rationale: MVP section 6 requires all three and the critique to be logged; one call keeps cost and latency down. The eval grades the chosen question and also shows the other two, so the author can judge the selection.
-- Alternatives considered: three generation calls plus a separate critic call (more cost, more code, no clear gain until the eval says otherwise).
+- Choice: one request returns three candidate questions, a critique of each against the rules, and which one is chosen, as structured output.
+- Rationale: MVP section 6 requires all three and the critique to be logged. One call is the cheapest design that does this. A separate critic call would double cost and latency for no measured gain; the author's blind pick tests whether the self-selection is any good.
 
 **System prompt as a versioned file**
-- Choice: the prompt text lives in `src/generation/systemPrompt.ts` with a `PROMPT_VERSION` constant. Every generated result records the version.
-- Rationale: questions must be traceable to the prompt that wrote them, as they are to the brief.
+- Choice: the prompt lives in `src/generation/systemPrompt.ts` with a `PROMPT_VERSION` constant, bumped on any change to the text. Every result records it.
+
+**"Let it simmer" belongs to the email, not the question**
+- Choice: the generator returns only the question. The evening email template (phase 4) adds the framing and "don't answer this yet, let it simmer", as [MVP section 2](./ORIGINAL_IDEA/MVP-IDEA.md#2-the-loop-decided) describes.
+- Rationale: one place owns the phrase, so it can never be printed twice, and it doesn't distort sentence and word counts.
+
+**The generator never retries**
+- Choice: one call per invocation. Retrying on rate limits or failures is the caller's job (the eval runner now, the scheduled send in phase 4).
+- Rationale: retries in two layers multiply silently and break cost estimates.
 
 ### Model and API rules
 
-These come from the current Claude API behaviour for Claude Opus 5.5 and apply to every call in this phase.
+These follow the current Claude API behaviour for Claude Opus 5.5.
 
-- Model `claude-opus-5-5`. Thinking cannot be turned off on this model; do not send a `thinking: disabled` setting.
-- Set `output_config.effort` explicitly. The default on Claude Opus 5.5 is `medium`; the baseline uses `medium`, and the eval records the effort level per run.
-- Return the candidates through structured outputs (`output_config.format` with a JSON schema), not "reply only in JSON" instructions. No assistant prefill (rejected on this model) and no forced `tool_choice` (rejected).
-- Check `stop_reason` before reading content. `refusal` and `max_tokens` are recorded as their own outcomes, never parsed as a question.
-- **Refusal fallbacks.** Production calls (from phase 4) enable server-side fallbacks (`fallbacks: "default"`), so a refusal is retried on another model instead of leaving the user with no question. The eval turns fallbacks **off** and fails any case where the model that answered differs from the model requested, so results always describe the model under test.
-- Brief and piece text from users is data, not instructions. The system prompt says so, and user content is passed in clearly delimited fields.
+- Model `claude-opus-5-5`. Thinking cannot be turned off on this model; never send a disabled-thinking setting.
+- Set `output_config.effort` explicitly (its default on this model is `medium`). The run uses `medium` and records it.
+- Return the candidates through structured outputs (`output_config.format` with a JSON schema). No assistant prefill and no forced `tool_choice`; this model rejects both.
+- The schema uses three named candidate fields (`candidateA`, `candidateB`, `candidateC`) and a `chosen` field of `"A"`, `"B"` or `"C"`, because a schema can't enforce an array of exactly three. Enum values such as `kind` are lower-cased in code before validation.
+- Read the answer from the text block, selected by type. With thinking on, other blocks come first.
+- Check `stop_reason` before parsing. `refusal` and `max_tokens` become typed failures, never a question.
+- `max_tokens` is set from the pilot's measured usage, since thinking tokens count against it, and recorded per run.
+- **Refusal fallbacks.** Production calls (from phase 4) enable the API's server-side refusal fallback, so a refusal doesn't leave the user without a question. The eval turns it off and fails any case where the model that answered differs from the model requested. Confirm the parameter and the response field that names the answering model against the API docs when writing this code.
+- Brief and piece text is data, not instructions. The system prompt says so, and user content goes in clearly delimited fields.
 
-### Generator input and output
+### The brief
 
-**Input**
-- `brief`: the current brief text
-- `dayNumber`: days since setup (drives the first-week rules in [MVP section 4](./ORIGINAL_IDEA/MVP-IDEA.md#4-the-first-week-decided): days 1–3 easy and close to the brief; days 4–7 include one question with real tension and one change of register)
-- `recentPrompts`: up to the last 14 questions sent, to avoid repetition
-- `recentPieces`: up to the last 5 pieces, each with its session id, date and text
-- `latestPieceSessionId`: the most recent piece that arrived before generation, or none
+A brief is one text, of any length. It may have two parts: a **core** (what the user is simmering, in their own words) and **background** (supporting material). The generator prompt treats them differently: questions orbit the core, and the background supplies specifics and depth. A brief with no background is all core. A brief of "I don't know yet" lets the generator range across anything else the reply mentions.
 
-**Output**
-- `candidates`: three items, each with `text`, `kind` (defend a claim, explain to someone, decide between options, predict, invent a scene, or other), `followsUpSessionId` (or null) and `critique`
-- `chosenIndex` and a one-line `reason`
-- `promptVersion`, `model`, `effort`, `usage`, `stopReason`
+Questions are written in the language of the brief.
 
-A follow-up may only reference a session id that appears in `recentPieces`. With no pieces, every candidate is independent: generation never waits for a reply.
+### Generator input
+
+- `brief` and `briefId`
+- `today`: the user's local date, so a question can ask for a prediction with a date on it
+- `sessionNumber`: sessions sent under any brief, counting unanswered ones. Not calendar days, so `weekdays:` doesn't distort it.
+- `repliesReceived`: how many sessions have a submission
+- `recentPrompts`: up to the last 14 questions, each with its `kind`, its `orbit` and whether it was answered
+- `recentPieces`: up to the last 5 pieces, each with session id, date and text
+- `latestPieceSessionId`: the newest piece that arrived before generation, or none
+
+### Rules the generator follows
+
+From [MVP sections 4 and 6](./ORIGINAL_IDEA/MVP-IDEA.md#4-the-first-week-decided):
+
+- **Sessions 1–3:** easy, close to the core, answerable from what the user already thinks.
+- **Sessions 4–7:** include one question with real tension and one change of register. If `repliesReceived` is 0 by session 4, stay easy instead.
+- **Session 8 onward:** roughly half close to the core, a quarter at its edges, a quarter a change of register, judged over the last 14 prompts.
+- **Follow-ups:** only on `latestPieceSessionId`, and only when that piece left a thread worth pulling. With no new piece, the question is independent.
+- Vary `kind` without announcing it. Never repeat or near-repeat a recent prompt.
+- A changed brief doesn't reset `sessionNumber`.
+
+### Generator output
+
+A result with a `status`:
+
+- `ok`: the chosen question's `text`, `kind`, `orbit` (`close`, `edge` or `register`) and `followsUpSessionId`; all three candidates with their critiques; which was chosen and why; and `promptVersion`, `briefId`, `model`, `effort`, `usage`, `stopReason`
+- `refusal`, `max_tokens` or `invalid_output`: the raw response details, for logging
+- `check_failed`: no candidate passed the deterministic checks; all three are included
+
+**Selection:** if the model's chosen candidate fails a check, the generator takes the first other candidate that passes, records the switch, and returns `ok`. If none pass, it returns `check_failed`.
 
 ### Deterministic checks
 
-Applied to every candidate, in unit tests and in the eval:
-- One to three sentences
-- Ends with "let it simmer"
-- Contains no URL
-- Does not start with or contain "reflect on" (case-insensitive)
-- Within a word limit (proposed: 80 words including the ending)
-- `followsUpSessionId` is null or matches a piece in the input
+- One to three sentences, split by a rule written down as tested examples (question marks, abbreviations such as "e.g.", ellipses, quoted speech, dates)
+- At most 60 words
+- No URL
+- Does not contain "reflect on" (case-insensitive)
+- Does not contain "let it simmer" (the email adds it)
+- `followsUpSessionId` is null or equals `latestPieceSessionId`
+- `kind` and `orbit` are from their allowed sets
 
 ### Key files and components
 
@@ -101,69 +131,68 @@ Applied to every candidate, in unit tests and in the eval:
 src/generation/
   systemPrompt.ts          # prompt text + PROMPT_VERSION
   generateQuestion.ts      # the generator
-  checks.ts                # deterministic checks
-  types.ts
+  checks.ts                # deterministic checks and sentence splitting
+  types.ts                 # input and result types
 tests/generation/
-  generateQuestion.test.ts # mocked client: request shape, parsing, stop reasons
+  generateQuestion.test.ts # mocked client
   checks.test.ts
 eval/question-generation/
   cases/                   # public synthetic cases (committed)
-  run.mjs                  # runner, adapted from the Claude API eval scaffold
-  grade.ts                 # deterministic checks + rubric judge
-  rubric.md                # the judge rubric, in plain words
+  private/                 # the author's briefs (gitignored)
+  runs/                    # all run output (gitignored)
+  run.ts                   # the runner, executed with tsx
+  weekChecks.ts            # week-level checks
+  report.ts                # writes the Markdown report
 ```
-
-Private cases and all run output go in gitignored directories (see decision 2 below), because the repository is public.
 
 ---
 
 ## The eval
 
 ### Cases
-- **Ten briefs.** The author's own brief, two or three others the author considers realistic, and synthesised variations of those to reach ten. Two of the ten are "I don't know yet" briefs.
-- **A week per brief.** Days 1 to 7 run in order, each day's question added to the next day's `recentPrompts`.
-- **Follow-up coverage.** On some days the case supplies a synthetic piece for the previous day, written to leave a thread worth pulling; on others it supplies none. At least one day per brief has no new piece, to show generation proceeds without one.
-- Sequential within a brief, briefs run concurrently.
 
-**Gate 1:** the author reads every brief and every synthetic piece and approves the set before any full run.
+Each case file holds a brief and a schedule of sessions. A session entry may supply a synthetic piece for the previous session; when it does, it also pins the question that piece answers, so the piece and the history agree.
 
-### Grading
-1. **Deterministic checks** (above), per candidate.
-2. **Rubric judge**, pointwise, on the chosen question. Draft criteria, each pass or fail:
-   - Contains a tension or demands a stance; is not a topic
-   - Answerable in about 300 words from what the user already knows, without research
-   - Stays inside the brief (or, for "I don't know yet", inside what the brief mentions)
-   - Fits the day: easy on days 1–3; by day 7 the week includes one real-tension question and one change of register
-   - If it is a follow-up, it engages with something specific in the piece
-   - Not a near-repeat of a question earlier in the week
-3. **Week-level checks** per brief: variety of `kind`, no repeats, register change present by day 7.
-4. **The author's read.** The report shows all 70 chosen questions, with their rejected siblings and critiques. The author's judgement is the verdict; the scores are there to find problems fast.
+- **The author's book, 14 sessions.** Core plus background ("Memory Scam"). Shown first in the report.
+- **The author's book, core only, 14 sessions** (pending the author's decision). Shows whether background makes the questions better.
+- **Four or five other briefs, 7 sessions each**, based on the author's realistic examples. At least one is "I don't know yet" and at least one is short.
+- **Piece coverage per brief:** some sessions with a piece that leaves a thread, some with a flat piece that doesn't, and some with no piece. The eval checks that the generator follows up on the first kind and stays independent on the others.
+- **One injection case:** a piece containing an instruction to the model, to check it is treated as data.
 
-The judge returns its verdict through structured outputs and treats the question as data. It must not be the model under test.
-
-**Gate 2:** the runner grades a pilot of about five cases; the author reads the questions next to the grades and says whether they would have graded any differently. The rubric is revised until the answer is no.
+The author reads and approves every case, including the synthetic pieces and pinned questions, before the full run.
 
 ### Running it
-- The runner is based on the Claude API skill's eval scaffold: per-case wall-clock limit, backoff on rate limits with retries recorded, results written as each case finishes, resume without duplicates, a sidecar file for failed attempts, and an assertion that the answering model is the requested one.
-- The scaffold's harness-approval flag (`--approve-harness`) is passed only by the author, never by Claude.
-- **Cost:** estimated from the pilot's measured token usage, shown with the arithmetic, and approved by the author before the full run. No estimate is made before a pilot exists.
-- The report is built with the skill's report builder, not hand-written HTML.
+
+- `npx tsx --env-file=.dev.vars eval/question-generation/run.ts`
+- Sessions within a brief run in order; up to three briefs run at once.
+- Results are stored per (brief, session) as each finishes. If a session fails after the runner's retries, that brief stops and a re-run resumes from the failed session.
+- The runner retries rate limits and overloads with jittered backoff, caps attempts, and records retries. Failures are recorded by type: refusal, max tokens, invalid output, check failed, timeout, API error.
+- Fallbacks off; any answer from a different model than requested fails the session.
+- **Pilot first:** two sessions of the author's brief. The full run's cost is estimated from the pilot's measured usage, with the arithmetic shown, and approved by the author before it starts.
+
+### Grading
+
+1. **Deterministic checks** on every candidate.
+2. **Week-level checks** per brief: at least three different `kind` values in any 7 sessions; tension and a register change present in sessions 4–7 (unless no replies); the `orbit` mix from session 8 onward; follow-ups present after thread pieces and absent after flat or missing pieces; no near-repeats, flagged for the author's read.
+3. **The author's read.** The Markdown report lists, per brief and session: the chosen question, the two rejected candidates and all three critiques. For the author's own brief, the candidates are shown unlabelled first, for the blind pick, then with the generator's choice. The author marks each of their own questions *would reply*, *might* or *wouldn't*. Those marks are the verdict.
 
 ---
 
 ## Testing strategy
 
 ### Unit tests
-- Request assembly: model, effort, structured output schema, no prefill, no forced tool choice, brief and pieces delimited as data
-- Parsing: valid output; malformed output; `refusal`; `max_tokens`
-- Follow-up guard: a candidate referencing an unknown session id is rejected
-- Each deterministic check, with passing and failing examples
+- Request assembly: model, effort, schema, no prefill, no forced tool choice, user text delimited as data
+- Parsing: valid output; thinking block before the text block; malformed JSON; wrong enum casing; `refusal`; `max_tokens`
+- Selection: chosen candidate passes; chosen fails and another passes; none pass
+- Follow-up guard against session ids other than `latestPieceSessionId`
+- Each deterministic check, with the sentence-splitting examples
+- Week-level checks on fixed inputs
 - No test calls the real API
 
 ### Manual testing checklist
-- [ ] One live call with the author's brief produces three candidates and a choice
-- [ ] The pilot report opens and shows candidates, critiques and grades
-- [ ] Full report read by the author
+- [ ] One live call with the author's brief returns three candidates and a choice
+- [ ] The pilot report shows candidates, critiques and choices correctly
+- [ ] The full report is read and marked by the author
 
 ---
 
@@ -171,7 +200,7 @@ The judge returns its verdict through structured outputs and treats the question
 
 - [ ] `npm test` passes with coverage thresholds met
 - [ ] `npx tsc --noEmit` passes
-- [ ] No API key, private brief or eval output staged (`git status`)
+- [ ] Nothing from `eval/question-generation/private/` or `runs/`, and no key, is staged (`git status`)
 - [ ] Docs updated (root `CLAUDE.md` commands and status, `README.md` status, `REFERENCE/question-generation.md`)
 
 ---
@@ -179,34 +208,33 @@ The judge returns its verdict through structured outputs and treats the question
 ## PR workflow
 
 - Branch: `feature/question-generation`
-- Review with `/review-pr`. The prompt and eval are the heart of the product; consider `/review-pr-team`.
-- The PR description includes the baseline headline numbers, the author's verdict, and the measured cost of the runs.
+- Review with `/review-pr`; the prompt is the heart of the product, so consider `/review-pr-team`.
+- The PR description includes the author's marks, the blind-pick agreement, the measured cost of each run, and any prompt revisions.
 
 ---
 
 ## Edge cases and considerations
 
 ### Known risks
-- **The judge rewards the wrong thing.** Mitigated by gate 2 and by the author reading every question.
-- **Synthetic briefs are too easy.** Mitigated by anchoring them on the author's real brief and examples.
-- **Questions converge on one style.** A per-question judge can't see this; the week-level variety check and the author's read can.
+- **The prompt suits the author's brief only.** The other briefs, especially "I don't know yet", are the guard.
+- **Questions converge on one style.** The week-level variety checks and the author's read catch it.
+- **Long background pulls questions into side details.** The core/background rule addresses it; the core-only comparison measures it.
 
 ### Security considerations
-- The author's real brief and any personal material stay out of the public repository.
-- Brief and piece text is treated as data in both the generator and the judge prompts.
+- The author's book material and other private briefs stay in gitignored folders and never reach the public repository.
+- Brief and piece text is treated as data in the generator prompt; the injection case tests it.
 
 ---
 
-## Decisions for the author before work starts
+## Decisions for the author
 
-1. **Judge model.** It cannot be Claude Opus 5.5, the model under test. Proposed: Claude Sonnet 5.5, with the author's own read as the real verdict.
-2. **Where private cases and results live.** Proposed: `eval/question-generation/private/` for the author's brief and `eval/question-generation/runs/` for output, both gitignored. Public synthetic cases are committed.
-3. **The author's brief and two or three realistic examples.** Needed for the case set; supplied in chat or written straight into the private folder.
+1. **Core-only comparison** for the book brief: include it or not.
+2. **Other briefs:** two or three realistic examples, in chat, to base the other cases on.
 
 ---
 
 ## Related documentation
 
-- [MVP-IDEA.md](./ORIGINAL_IDEA/MVP-IDEA.md) sections 4, 5, 6 and 12
+- [MVP-IDEA.md](./ORIGINAL_IDEA/MVP-IDEA.md) sections 2, 4, 5, 6, 9 and 12
 - [testing-strategy.md](../REFERENCE/testing-strategy.md) - tests versus the eval
 - [environment-setup.md](../REFERENCE/environment-setup.md) - the API key

@@ -170,3 +170,7 @@ service-account*.json
 # Example:
 # /data/
 # /uploads/
+
+# Question-generation eval: the author's private briefs and all run output (public repo)
+eval/question-generation/private/
+eval/question-generation/runs/

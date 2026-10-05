@@ -20,7 +20,7 @@ Simmer has deterministic code (parsing email, classifying replies, attributing s
 |---|---|---|
 | Checked by | Unit and integration tests | The prompt eval, plus post-checks in production code |
 | Runs | Every commit and PR | On demand, when prompts or the model change |
-| Pass means | Exact expected behaviour | Meets the standard in [MVP-IDEA.md section 6](../SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#6-prompt-generation-open-the-only-thing-that-matters) |
+| Pass means | Exact expected behaviour | Passes the checks, and the author would reply to it |
 | Calls the Anthropic API | Never; the client is mocked | Yes |
 
 ---
@@ -88,11 +88,12 @@ Don't mock Simmer's own logic: classification, attribution, scheduling and event
 
 The eval checks question quality, which unit tests cannot. It is the first build task ([MVP-IDEA.md section 12](../SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code), prompt 2).
 
-- **Input:** 10 briefs, including two "I don't know yet".
-- **Run:** generate a week of questions for each brief, with day-1 questions deliberately easy.
-- **Grade:** against the standard in MVP section 6 (one to three sentences, a tension, answerable in 300 words, inside the brief, never a topic). The author reads a sample by eye.
-- **Keep:** every candidate and critique is logged so prompt changes can be compared.
-- **Model choice:** the same eval compares Claude Opus 5.5 with cheaper models.
+- **Input:** the author's own brief over 14 sessions, plus four or five other briefs over 7 sessions, including an "I don't know yet" brief. Private briefs stay in gitignored folders.
+- **Grade:** deterministic checks on every question, week-level checks (variety, the first-week rules, follow-ups), and the author's read. The author marks their own questions *would reply*, *might* or *wouldn't*; that is the verdict.
+- **Keep:** every candidate and critique is logged, with the prompt version, so prompt changes can be compared.
+- **Not yet:** a model-graded judge and model comparisons. They wait until there is a reason, such as other users.
+
+Details are in [01-question-generation.md](../SPECIFICATIONS/01-question-generation.md).
 
 The eval calls the real API, so it never runs in CI or on every commit.
 
