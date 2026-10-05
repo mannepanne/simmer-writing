@@ -79,7 +79,7 @@ Inputs: the brief, the last 14 prompts (avoid repetition), the last 5 pieces (fo
 
 **Mostly independent, occasionally a follow-up.** Most evenings the question stands on its own: it comes from the brief, with recent pieces as background. Now and then, when the most recent piece clearly left a thread worth pulling (an unresolved tension, a claim made in passing, a change of mind), the question follows it up instead. The generator decides, and logs which piece it followed and why. Generation never waits for a reply: if no new piece has arrived when the evening question is due, it is an ordinary independent question, so a skipped or late morning never stalls the loop.
 
-A good question is one to three sentences, has a tension, can be answered in 300 words from what the user already knows, stays inside the brief, and ends with "let it simmer."
+A good question is one to three sentences, has a tension, can be answered in 300 words from what the user already knows, and stays inside the brief. The evening email adds "let it simmer"; the question itself never includes it.
 
 Vary the *kind* of question without telling the user: defend a claim, explain something to a specific kind of person, decide between two bad options, predict something with a date on it, invent a scene. This is seasoning, not a schedule. Over a week, roughly: half close to the brief, a quarter at its edges, a quarter a change of register. Adjust toward whatever gets replies.
 
@@ -120,7 +120,7 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 
 - Cloudflare Workers + Cron Triggers; D1 for the tables above
 - Cloudflare Email Service for both directions: Email Routing sends mail for simmer@hultberg.org (an address rule on the existing hultberg.org setup) to the Worker's `email()` handler; mail goes out from the same address through the `send_email` binding, with `In-Reply-To`/`References` headers for threading. No API key.
-- Anthropic API for generation, nudges and receipts, using Claude Opus 5.5 (`claude-opus-5-5`). The prompt-generation eval decides whether a cheaper model is good enough.
+- Anthropic API for generation, nudges and receipts, using Claude Opus 5.5 (`claude-opus-5-5`). Whether a cheaper model is good enough is tested later, when there is a reason such as other users.
 - Plain-text emails only: no HTML, no images, no tracking. They read like a letter, quote cleanly in replies, and are less likely to be filed as marketing.
 - Signup: email simmer@hultberg.org (see section 3); no signup page
 - Email address: simmer@hultberg.org. Any web part is a separate Worker at simmer.hultberg.org

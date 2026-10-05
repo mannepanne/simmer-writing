@@ -21,11 +21,12 @@ Build the code that turns a brief into the evening question, and an eval that sh
 - [ ] Deterministic checks on a question
 - [ ] Unit tests for request assembly, output parsing, candidate selection and the checks, with the Anthropic client mocked
 - [ ] The eval: case files, a runner, week-level checks, and a Markdown report for the author to read and mark
-- [ ] Docs: commands in root `CLAUDE.md`, how to run the eval in `REFERENCE/question-generation.md`, status lines in `README.md` and root `CLAUDE.md`
+- [ ] Docs: commands in root `CLAUDE.md`; how to run the eval in `REFERENCE/question-generation.md`, listed in the REFERENCE index in root `CLAUDE.md` and `REFERENCE/CLAUDE.md`; status lines in `README.md` and root `CLAUDE.md`; the test setup in `REFERENCE/testing-strategy.md` (plain Vitest in phase 1, the Workers pool from phase 2)
 
 ### Out of scope
 - Cloudflare Workers project, `wrangler.jsonc`, D1, the Workers test pool (phase 2)
-- Sending or receiving email, and the email framing around the question, including "let it simmer" (phase 4)
+- Receiving and sending email (phase 3)
+- The evening email template and its framing around the question, including "let it simmer" (phase 4)
 - Nudges and the receipt sentence (phase 5)
 - A model-graded rubric judge, and comparing models. Both wait until there is a reason, such as inviting other users.
 - Systematic prompt tuning against the eval. One or two revisions after the author's read are in scope.
@@ -34,7 +35,7 @@ Build the code that turns a brief into the evening question, and an eval that sh
 - [ ] The author has approved every case: briefs, synthetic pieces and the questions they answer
 - [ ] A full run on Claude Opus 5.5 is complete, and the author has marked every question for their own brief as *would reply*, *might* or *wouldn't*. The counts are recorded in the PR.
 - [ ] The author has made a blind pick among the three candidates for each of their own sessions. How often it matches the generator's choice is recorded in the PR.
-- [ ] Any prompt revisions, and why, are recorded in the PR with the `PROMPT_VERSION` each run used
+- [ ] Any prompt revisions, and why, are recorded in the PR with the `PROMPT_VERSION` each run used. After a revision, the author re-marks their own brief's questions; the other briefs are re-run and checked, not re-marked.
 - [ ] Every chosen question passes the deterministic checks, or each failure is explained
 - [ ] Unit tests pass with 95%+ lines, functions and statements and 90%+ branches on `src/`
 - [ ] `npx tsc --noEmit` passes
@@ -61,12 +62,12 @@ Build the code that turns a brief into the evening question, and an eval that sh
 - Rationale: one place owns the phrase, so it can never be printed twice, and it doesn't distort sentence and word counts.
 
 **The generator never retries**
-- Choice: one call per invocation. Retrying on rate limits or failures is the caller's job (the eval runner now, the scheduled send in phase 4).
+- Choice: one call per invocation. Retrying on rate limits or failures is the caller's job: the eval runner in this phase, the scheduled send in phase 4.
 - Rationale: retries in two layers multiply silently and break cost estimates.
 
 ### Model and API rules
 
-These follow the current Claude API behaviour for Claude Opus 5.5.
+These come from the Claude API skill's documentation of Claude Opus 5.5. Confirm each against the API docs when writing the code.
 
 - Model `claude-opus-5-5`. Thinking cannot be turned off on this model; never send a disabled-thinking setting.
 - Set `output_config.effort` explicitly (its default on this model is `medium`). The run uses `medium` and records it.
@@ -125,6 +126,8 @@ A result with a `status`:
 - `followsUpSessionId` is null or equals `latestPieceSessionId`
 - `kind` and `orbit` are from their allowed sets
 
+These checks cover shape only. Hard rule 3 (questions, never topics) beyond the "reflect on" phrase rests on the model's own critique and the author's read.
+
 ### Key files and components
 
 ```
@@ -168,6 +171,7 @@ The author reads and approves every case, including the synthetic pieces and pin
 - Results are stored per (brief, session) as each finishes. If a session fails after the runner's retries, that brief stops and a re-run resumes from the failed session.
 - The runner retries rate limits and overloads with jittered backoff, caps attempts, and records retries. Failures are recorded by type: refusal, max tokens, invalid output, check failed, timeout, API error.
 - Fallbacks off; any answer from a different model than requested fails the session.
+- The report includes the switch rate: how often the generator replaced the model's chosen candidate because it failed a check.
 - **Pilot first:** two sessions of the author's brief. The full run's cost is estimated from the pilot's measured usage, with the arithmetic shown, and approved by the author before it starts.
 
 ### Grading
@@ -218,6 +222,7 @@ The author reads and approves every case, including the synthetic pieces and pin
 ### Known risks
 - **The prompt suits the author's brief only.** The other briefs, especially "I don't know yet", are the guard.
 - **Questions converge on one style.** The week-level variety checks and the author's read catch it.
+- **Repeats beyond the last 14 prompts go unseen.** The generator only sees 14, so a 30-session run can repeat an early question. Acceptable for the MVP; revisit if the author notices.
 - **Long background pulls questions into side details.** The core/background rule addresses it; the core-only comparison measures it.
 
 ### Security considerations
