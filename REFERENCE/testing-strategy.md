@@ -20,7 +20,7 @@ Simmer has deterministic code (parsing email, classifying replies, attributing s
 |---|---|---|
 | Checked by | Unit and integration tests | The prompt eval, plus post-checks in production code |
 | Runs | Every commit and PR | On demand, when prompts or the model change |
-| Pass means | Exact expected behaviour | Passes the checks, and the author would reply to it |
+| Pass means | Exact expected behaviour | Passes the checks, and the author would reply to it (standard: [MVP section 6](../SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#6-prompt-generation-open-the-only-thing-that-matters)) |
 | Calls the Anthropic API | Never; the client is mocked | Yes |
 
 ---
@@ -39,8 +39,8 @@ Tests serve two purposes: **validation** (the code works) and **directional cont
 
 ## Framework
 
-- **Runner:** [Vitest](https://vitest.dev/), with Cloudflare's Workers integration so tests run in the Workers runtime with D1 and bindings available
-- **Coverage:** Vitest coverage, with the thresholds above enforced in config
+- **Runner:** [Vitest](https://vitest.dev/). Phase 1 runs it in Node; from phase 2 it runs in the Workers runtime through Cloudflare's Workers integration, with D1 and bindings available
+- **Coverage:** Vitest with the istanbul provider, with the thresholds above enforced in config
 - **Type checking:** `tsc --noEmit`, run alongside the tests
 
 Commands are recorded in [CLAUDE.md](../CLAUDE.md) once the project is scaffolded.
@@ -86,12 +86,12 @@ Don't mock Simmer's own logic: classification, attribution, scheduling and event
 
 ## The prompt eval
 
-The eval checks question quality, which unit tests cannot. It is the first build task ([MVP-IDEA.md section 12](../SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code), prompt 2).
+The eval checks question quality, which unit tests cannot. It is built in [phase 1](../SPECIFICATIONS/01-question-generation.md).
 
 - **Input:** the author's own brief over 14 sessions, plus four or five other briefs over 7 sessions, including an "I don't know yet" brief. Private briefs stay in gitignored folders.
 - **Grade:** deterministic checks on every question, week-level checks (variety, the first-week rules, follow-ups), and the author's read. The author marks their own questions *would reply*, *might* or *wouldn't*; that is the verdict.
 - **Keep:** every candidate and critique is logged, with the prompt version, so prompt changes can be compared.
-- **Not yet:** a model-graded judge and model comparisons. They wait until there is a reason, such as other users.
+- **Not covered:** a model-graded judge and model comparisons. They are added when there is a reason, such as other users.
 
 Details are in [01-question-generation.md](../SPECIFICATIONS/01-question-generation.md).
 
