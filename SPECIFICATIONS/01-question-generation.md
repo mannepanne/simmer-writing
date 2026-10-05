@@ -157,7 +157,7 @@ eval/question-generation/
 Each case file holds a brief and a schedule of sessions. A session entry may supply a synthetic piece for the previous session; when it does, it also pins the question that piece answers, so the piece and the history agree.
 
 - **The author's book, 14 sessions.** Core plus background ("Memory Scam"). Shown first in the report.
-- **The author's book, core only, 14 sessions** (pending the author's decision). Shows whether background makes the questions better.
+- **The author's book, core only, 14 sessions.** Same prompt and settings as the full-brief run. The author marks both side by side; the result decides whether the setup email invites long briefs.
 - **Four or five other briefs, 7 sessions each**, based on the author's realistic examples. At least one is "I don't know yet" and at least one is short.
 - **Piece coverage per brief:** some sessions with a piece that leaves a thread, some with a flat piece that doesn't, and some with no piece. The eval checks that the generator follows up on the first kind and stays independent on the others.
 - **One injection case:** a piece containing an instruction to the model, to check it is treated as data.
@@ -233,8 +233,9 @@ The author reads and approves every case, including the synthetic pieces and pin
 
 ## Decisions for the author
 
-1. **Core-only comparison** for the book brief: include it or not.
-2. **Other briefs:** two or three realistic examples, in chat, to base the other cases on.
+1. **Other briefs:** two or three realistic examples, in chat, to base the other cases on.
+
+Decided: the core-only comparison for the book brief is included.
 
 ---
 
