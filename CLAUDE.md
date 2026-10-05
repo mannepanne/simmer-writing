@@ -55,7 +55,7 @@ Related invariants:
 
 ## Implementation phases
 
-**Current phase:** none started. Phases are not yet defined. Phases go in `SPECIFICATIONS/` as numbered files based on [00-TEMPLATE-phase.md](./SPECIFICATIONS/00-TEMPLATE-phase.md); the suggested order is in [MVP-IDEA.md section 12](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code).
+**Current phase:** 1, [question generation and eval](./SPECIFICATIONS/01-question-generation.md), specified, not started. All six phases: [SPECIFICATIONS/CLAUDE.md](./SPECIFICATIONS/CLAUDE.md#simmers-implementation-phases). Phases go in `SPECIFICATIONS/` as numbered files based on [00-TEMPLATE-phase.md](./SPECIFICATIONS/00-TEMPLATE-phase.md); the suggested order is in [MVP-IDEA.md section 12](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code).
 
 ### SPECIFICATIONS/
 - **Implementation phases** (numbered files) - active work-in-progress
