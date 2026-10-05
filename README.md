@@ -2,7 +2,7 @@
 
 *A question at night. Your reflection by morning.*
 
-Simmer is an email service that gets you writing something most days. Each evening it emails you one question with some tension in it, and tells you not to answer yet. Each morning it replies in the same thread with the question again, and you answer that email. If you're stuck, reply with `stuck` and it answers back with a question, never with prose. After you write, you get a short receipt with one specific sentence about your thinking.
+Simmer is an email service that gets you writing something most days. Each evening it emails you one question with some tension in it, and tells you not to answer yet. Each morning it replies in the same thread with the question again, and you answer that email. If you're stuck, reply with `stuck` and it answers back with one question, one pointer or one counterexample, never with prose. After you write, you get a short receipt with one specific sentence about your thinking.
 
 It exists because a blank page has no question and no reader. Simmer supplies both.
 
@@ -31,6 +31,8 @@ No streaks, no missed-day counts, no comments on style. Your writing is yours an
 - [MVP build target](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md) - the loop, commands, hard rules, data model and stack in detail
 - [CLAUDE.md](./CLAUDE.md) - navigation index for working on the project with Claude Code
 - [Environment setup](./REFERENCE/environment-setup.md) - accounts, secrets and Cloudflare configuration
+- [Testing strategy](./REFERENCE/testing-strategy.md) - tests for the code, and the eval for question quality
+- [Troubleshooting](./REFERENCE/troubleshooting.md) - known problems and fixes
 
 ## Working on it
 

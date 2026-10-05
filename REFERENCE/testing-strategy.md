@@ -100,6 +100,8 @@ The eval calls the real API, so it never runs in CI or on every commit.
 
 ## Before every commit
 
+Once the project is scaffolded:
+
 ```bash
 npm test
 npx tsc --noEmit

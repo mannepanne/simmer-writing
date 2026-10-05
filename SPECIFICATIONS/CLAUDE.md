@@ -102,9 +102,9 @@ Archive serves as historical record. For current implementation details, see `RE
 
 The suggested order comes from [MVP-IDEA.md section 12](./ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code). Question quality comes before any plumbing:
 
-1. Prompt-generation system prompt and eval
+1. Prompt-generation system prompt and eval. The first phase that adds code, so it also scaffolds the project and updates the status lines in `README.md` and root `CLAUDE.md`
 2. D1 data model, migrations and the derived session view
-3. Inbound `email()` handler: allowlist, quote stripping, classification, commands, attribution
+3. Inbound `email()` handler: allowlist, quote stripping, classification, commands, attribution. Creates the simmer@ routing rule, so this phase also updates `REFERENCE/environment-setup.md` and `REFERENCE/troubleshooting.md`
 4. Evening and morning sends, receipts, the day-4 email and pausing
 5. Nudge responder and receipt sentence, with post-checks for hard rules 1 and 4
 

@@ -13,7 +13,7 @@
 
 | Service | Used for | Account |
 |---|---|---|
-| Cloudflare | Workers, Cron Triggers, D1, Email Routing and Email Sending | M Hultberg |
+| Cloudflare | Workers, Cron Triggers, D1, Email Routing and Email Sending | The author's Cloudflare account |
 | Anthropic | Claude API for questions, nudges and receipts | The author's Anthropic Console account |
 | GitHub | Code and pull requests | [mannepanne/simmer-writing](https://github.com/mannepanne/simmer-writing) (public) |
 
@@ -42,7 +42,7 @@ Email needs no key: the Worker sends through the `send_email` binding and receiv
    npx wrangler secret put ANTHROPIC_API_KEY
    ```
 
-`.dev.vars` and `.env` are gitignored. Wrangler loads `.dev.vars` automatically for `wrangler dev` and tests.
+`.dev.vars` and `.env` are gitignored. Wrangler loads `.dev.vars` automatically for `wrangler dev`.
 
 ---
 
@@ -55,7 +55,7 @@ npx wrangler login     # one-time browser approval; credentials stay in Wrangler
 npx wrangler whoami    # confirm the account and scopes
 ```
 
-The login needs the `email_routing` and `email_sending` scopes, which the default login includes.
+The login needs the `email_routing` and `email_sending` scopes. The default login grants both; `npx wrangler whoami` lists them. If an email command fails with a permissions error, run `npx wrangler login` again.
 
 ---
 
@@ -64,6 +64,8 @@ The login needs the `email_routing` and `email_sending` scopes, which the defaul
 Simmer uses the address simmer@hultberg.org. The hultberg.org zone also carries the author's personal mail, so changes here are limited to that one address.
 
 ### Already in place on hultberg.org
+
+This table can go stale. The commands below it show the live state.
 
 | Setting | State |
 |---|---|
