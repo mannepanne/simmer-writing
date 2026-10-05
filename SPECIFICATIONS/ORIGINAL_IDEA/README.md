@@ -14,9 +14,11 @@ This folder is for storing your initial project concept documents, brainstorming
 
 These documents serve as the "source of truth" for the project's original intent. They're referenced throughout development but typically don't change once implementation begins.
 
-## What's already here
+## What's here
 
-- **`project-outline.md`** — a stub that Claude fills in during the orientation conversation. This becomes the master specification and source of truth for the project.
+- **`project-outline.md`** — what Simmer is and why. The source of truth for the project's intent.
+- **`MVP-IDEA.md`** — the detailed build target: the loop, setup and commands, hard rules for the agent, data model, stack.
+- **`POTENTIAL-FUTURE-ELABORATION.md`** — the larger design, parked until the MVP's secondary test. A menu for later, not a spec.
 
 ## Other files you might add
 
@@ -24,7 +26,3 @@ These documents serve as the "source of truth" for the project's original intent
 - `requirements-brainstorm.md` - Initial requirements gathering
 - `competitive-analysis.md` - Research on similar solutions
 - Any sketches, design files, briefs, or notes you brought with you
-
----
-
-**This is a template folder** - Once your project is underway, Claude can replace this README with project-specific framing, or you can leave it as-is.

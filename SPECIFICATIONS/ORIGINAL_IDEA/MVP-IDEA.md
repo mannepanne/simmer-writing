@@ -4,7 +4,7 @@
 A question arrives by email before bed. You reply to it in the morning. If you're stuck, something answers back.
 
 Tagline: *A question at night. Your reflection by morning.*
-Status: build target. Author: Magnus. Date: 2026-10-04.
+Status: build target. Author: Magnus. Last updated: 2026-10-05.
 The fuller design exploration lives in POTENTIAL-FUTURE-ELABORATION.md; it is parked, not part of this build.
 
 ---
