@@ -64,9 +64,9 @@ Not yet defined. Phases go in `SPECIFICATIONS/` as numbered files based on [00-T
 
 ### REFERENCE/
 How-it-works documentation for implemented features:
-- [testing-strategy.md](./REFERENCE/testing-strategy.md) - testing philosophy and approach
-- [environment-setup.md](./REFERENCE/environment-setup.md) - API keys and environment configuration (template, not filled in yet; see Secrets below)
-- [troubleshooting.md](./REFERENCE/troubleshooting.md) - common issues and solutions
+- [testing-strategy.md](./REFERENCE/testing-strategy.md) - unit tests for deterministic code, the prompt eval for model output
+- [environment-setup.md](./REFERENCE/environment-setup.md) - accounts, secrets, Wrangler and the Cloudflare email configuration
+- [troubleshooting.md](./REFERENCE/troubleshooting.md) - email, Claude API, Wrangler and test problems
 - [pr-review-workflow.md](./REFERENCE/pr-review-workflow.md) - how the review skills work
 - [decisions/](./REFERENCE/decisions/) - Architecture Decision Records
 - [TEMPLATE-UPDATES/](./REFERENCE/TEMPLATE-UPDATES/) - migration packets for template improvements
@@ -134,7 +134,7 @@ Commands are not set up yet.
 
 - **Project outline** → [project-outline.md](./SPECIFICATIONS/ORIGINAL_IDEA/project-outline.md)
 - **Build target** → [MVP-IDEA.md](./SPECIFICATIONS/ORIGINAL_IDEA/MVP-IDEA.md)
-- **Environment setup** → [environment-setup.md](./REFERENCE/environment-setup.md) (template, not filled in yet)
+- **Environment setup** → [environment-setup.md](./REFERENCE/environment-setup.md)
 - **Known issues / technical debt** → GitHub Issues with `technical-debt` label
 - **Getting unstuck** → [troubleshooting.md](./REFERENCE/troubleshooting.md)
 - **Architecture decisions** → [decisions/](./REFERENCE/decisions/)

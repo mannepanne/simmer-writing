@@ -2,12 +2,6 @@
 
 Auto-loaded when working with files in this directory. Forward-looking plans for features being built.
 
----
-
-**⚠️ TEMPLATE GUIDANCE** - This file explains how to use this folder. When starting a new project, update this file to list your actual implementation phases.
-
----
-
 ## Purpose of this folder
 
 The SPECIFICATIONS folder contains **forward-looking plans** for features you're actively building. These are living documents that guide development and evolve as you learn more.
@@ -90,70 +84,42 @@ Move completed phase files here after:
 
 Archive serves as historical record. For current implementation details, see `REFERENCE/` documentation instead.
 
-## Workflow example
+## Workflow
 
-**Starting a new project:**
-1. Fill in the master specification stub at `ORIGINAL_IDEA/project-outline.md` (created during the orientation conversation)
-2. Break project into phases (e.g., 01-foundation.md, 02-core-features.md)
-3. Work through phases sequentially
-4. Move completed specs to ARCHIVE/
-5. Create how-it-works docs in REFERENCE/ for implemented features
+1. Break the next piece of work into a numbered phase file (e.g. `01-prompt-eval.md`)
+2. Review it with `/review-spec` before writing code
+3. Work through phases in order
+4. Move completed specs to `ARCHIVE/`
+5. Write how-it-works docs in `REFERENCE/` for what was built
 
-**Current phase tracking:**
-Update the "Current phase" indicator in both:
-- Root CLAUDE.md (project navigation)
-- This file (implementation library)
-
-## When to update this file
-
-Replace this template guidance with your actual phase list when you:
-1. Complete project planning
-2. Define your implementation phases
-3. Are ready to begin development
-
-**Keep it current** - Update phase status as you progress through development.
+**Current phase tracking:** update the "Current phase" line in both the root `CLAUDE.md` and this file.
 
 ---
 
-## Template replacement
+## Simmer's implementation phases
 
-When starting your project, replace the content below this line with your actual implementation phase list.
+**Current phase:** none started. Phases are not defined yet.
 
----
+The suggested order comes from [MVP-IDEA.md section 12](./ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code). Question quality comes before any plumbing:
 
-## Active implementation phases
+1. Prompt-generation system prompt and eval
+2. D1 data model, migrations and the derived session view
+3. Inbound `email()` handler: allowlist, quote stripping, classification, commands, attribution
+4. Evening and morning sends, receipts, the day-4 email and pausing
+5. Nudge responder and receipt sentence, with post-checks for hard rules 1 and 4
 
-Development is organised into [X] sequential phases. Each phase includes scope, acceptance criteria, testing strategy, and PR workflow.
-
-**Current phase:** [Phase number and name]
-
-### Phase files (work through in order)
-
-1. **[01-phase-name.md](./01-phase-name.md)** - [Timeframe]
-   [Brief description of what this phase builds]
-
-2. **[02-phase-name.md](./02-phase-name.md)** - [Timeframe]
-   [Brief description of what this phase builds]
-
-3. **[03-phase-name.md](./03-phase-name.md)** - [Timeframe]
-   [Brief description of what this phase builds]
-
-[Continue numbering phases...]
+Each becomes a numbered phase file (`01-…md`) based on [00-TEMPLATE-phase.md](./00-TEMPLATE-phase.md) when it is planned.
 
 ### Supporting documentation
 
 **[ORIGINAL_IDEA/](./ORIGINAL_IDEA/)**
-- `project-outline.md` - Master specification and product vision (always present as a stub)
-- Optional additions: `naming-rationale.md`, brainstorms, competitive analysis, sketches, briefs
+- `project-outline.md` - what Simmer is and why
+- `MVP-IDEA.md` - the detailed build target
+- `POTENTIAL-FUTURE-ELABORATION.md` - the parked larger design; a menu for later, not a spec
 
-**[ARCHIVE/](./ARCHIVE/)**
-- Completed specifications (moved here when phase is done)
+**[ARCHIVE/](./ARCHIVE/)** - completed specifications (moved here when a phase is done)
 
-**[REFERENCE/decisions/](../REFERENCE/decisions/)** - Architecture Decision Records
-- Search here BEFORE making architectural decisions (library choice, patterns, API design)
-- Follow existing ADRs unless new information invalidates reasoning
-- Document new architectural decisions here (prevents re-debating settled choices)
-- See [ADR guidance](../REFERENCE/decisions/CLAUDE.md) for when and how to create ADRs
+**[REFERENCE/decisions/](../REFERENCE/decisions/)** - Architecture Decision Records. Search here before making architectural decisions.
 
 ## When specs move to archive
 

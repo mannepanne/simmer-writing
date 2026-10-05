@@ -1,23 +1,23 @@
-# Reference Documentation Library
+# Reference documentation library
 
 Auto-loaded when working with files in this directory. How-it-works documentation for implemented features.
 
 ## Files in this directory
 
 ### [testing-strategy.md](./testing-strategy.md)
-**When to read:** Writing tests, setting up test coverage, or implementing TDD workflow.
+**When to read:** Writing tests, setting up test coverage, or working on the question-generation eval.
 
-Complete testing philosophy, framework setup (Vitest), test categories, coverage requirements, and CI/CD integration.
+Tests for deterministic code (email parsing, classification, attribution, scheduling, hard-rule post-checks) versus the prompt eval for model output; Vitest in the Workers runtime; coverage targets.
 
 ### [environment-setup.md](./environment-setup.md)
-**When to read:** Setting up local development, configuring secrets, or deploying to production.
+**When to read:** Setting up local development, adding or rotating a secret, or changing the Cloudflare email configuration.
 
-Environment variables, API key configuration, third-party service setup (Supabase, Readwise, Perplexity, Resend).
+Accounts, the `ANTHROPIC_API_KEY` secret, Wrangler login, and the hultberg.org Email Routing and Email Sending setup for simmer@hultberg.org.
 
 ### [troubleshooting.md](./troubleshooting.md)
-**When to read:** Debugging issues, fixing deployment problems, or resolving API integration errors.
+**When to read:** Mail not arriving or not sending, Claude API errors, Wrangler problems, failing tests.
 
-Common issues and solutions for local development, deployment, and API integrations.
+Known problems and fixes, grouped by area. Add an entry whenever a problem takes more than a few minutes to solve.
 
 ### [pr-review-workflow.md](./pr-review-workflow.md)
 **When to read:** Starting a new feature, creating PRs, or running any kind of review.
