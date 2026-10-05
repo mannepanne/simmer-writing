@@ -143,3 +143,11 @@ Modes as a visible schedule, the people list, corpus revisits, the base/orbit di
 ## 13. Background, in brief
 
 The author has repeatedly failed to build a writing habit, dislikes diaries, and feels he has nothing to write about. The insight was that the diary fails for lack of a question and a reader. Research that shaped the loop: Boice (brief scheduled sessions beat inspiration; accountability helps), Lally et al. (missed days barely matter, so no streaks), Gollwitzer (a fixed cue doubles follow-through), and the incubation effect (a question before sleep gets worked on overnight). Marker (marker.page) is the admired neighbour and this is its complement: Marker solves the room, Simmer solves showing up with a question; style is Marker's job, the thinking is ours. A fuller design was explored first and then cut back to this after a critical review found it was mostly about what happens after the habit exists.
+
+**On writer's block.** The framing comes from Seth Thomas, "Wrestling with Yourself: Franz Kafka and Writer's Block" (Focus 82, the British Science Fiction Association's magazine for writers), which sets out four schools. Three of them shape this build:
+
+- *Hemingway*: block is an ordinary struggle, beaten by persistence. Hence a small session most days, and `stuck` as a way to keep going rather than stop.
+- *Bradbury*: block is a signal that you are on the wrong topic, so change tack. Hence the variation in section 6, adjusting toward whatever gets replies, and logging unanswered questions as a tuning signal rather than a failure.
+- *Morrison*: sometimes the piece is not ready yet, and the answer is patience. Hence "let it simmer," and "not started," never "missed."
+
+The article's closing advice, to let the writing be flawed and let it be read, is the case for the receipt: every reply gets a reader. The fourth school, Kafka (total commitment, writing to exhaustion, burning most of the result), is noted for curiosity only. It is the article's own cautionary tale and nothing here is modelled on it. One detail is worth keeping: when the real work stalled he wrote letters instead, which is a small argument for reply-by-email.
