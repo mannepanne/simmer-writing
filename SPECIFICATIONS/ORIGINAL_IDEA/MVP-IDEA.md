@@ -17,7 +17,7 @@ This MVP mostly fixes the second: it supplies the question and a reader. For the
 
 ## 2. The loop [decided]
 
-One email thread per session.
+One email thread per session. A session runs every day by default; the user can limit it to chosen days of the week (section 3).
 
 1. **Evening email**, an hour before the user's bedtime. The question, one line of framing, and "don't answer this yet, let it simmer." No links. No stats. Nothing else.
 2. **Morning email**, a reply in the same thread at the user's cue time. Restates the question. One line of context: the most recent completed session ("Session 12, two days ago: 340 words on X"). This is the email to reply to.
@@ -35,9 +35,22 @@ The reply to that email (attributed by `In-Reply-To`, like everything else) is s
 
 Simmer only answers senders on an allowlist (initially the author's Gmail), so mail from anyone else gets no reply. Inviting someone means adding their address.
 
-**Changing the brief.** Reply to any Simmer email, or send a fresh one, with `brief:` on the first line. Everything after it replaces the whole brief. Simmer replies once, quoting the new brief back so the user can see what it understood. The change applies from the next evening question not yet generated. Earlier briefs are kept, not overwritten, so questions can be traced to the brief they came from. A `brief:` reply is never counted as a submission.
+**Commands.** Settings change by email. A command goes on the first line of a reply to any Simmer email, or of a fresh email to simmer@hultberg.org. A command email is never counted as a submission.
 
-Defaults: evening send = bedtime minus 60 min; morning send = 07:00 local if not stated; word floor 150 (counts as a session), target 300 (mentioned once in the morning email, never enforced).
+| Command | What it does |
+|---|---|
+| `brief: <text>` | Replaces the whole brief with everything after `brief:`. Earlier briefs are kept, so questions can be traced to the brief they came from. Applies from the next evening question not yet generated. |
+| `times: <text>` | Sets any of bedtime, morning time and timezone, in plain words (`times: bed 23:00, morning 06:30, Europe/Stockholm`). Applies from the next send not yet made. |
+| `weekdays: <text>` | Sets the days sessions run, in plain words (`weekdays: mon-fri`, `weekdays: every day`). The default is every day. |
+| `pause` | Stops evening and morning emails until `resume`. |
+| `resume` | Lifts any pause. Sends restart from the next scheduled evening. |
+
+- Every command gets one short confirming reply.
+- `brief:`, `times:` and `weekdays:` take free text. Simmer interprets it, saves it, and quotes back what it understood, so a misreading is visible straight away.
+- `pause` and `resume` match only when the first line is that word alone (case-insensitive, trailing punctuation allowed). A submission that starts "Pause for a moment and consider…" is a submission.
+- While paused, replies to earlier threads still count as submissions and still get receipts.
+
+Defaults: every day; evening send = bedtime minus 60 min; morning send = 07:00 local if not stated; word floor 150, target 300 (mentioned once in the morning email, never enforced). A reply under the floor still gets a receipt, because every reply deserves a reader, but does not count as a session.
 
 ## 4. The first week [decided]
 
@@ -74,15 +87,16 @@ Generate three candidates, self-critique against the rules, send the best, log a
 
 ## 7. Unanswered sessions and pausing [decided]
 
-An unanswered session is "not started," never "missed." The thread stays open; a late reply counts. The next evening proceeds normally with no reference to it. Unanswered questions are logged as a tuning signal (which kinds go dead?). After five consecutive unanswered sessions: one email, "Paused. Reply `resume` whenever," and nothing more. Any reply to any Simmer email unpauses.
+An unanswered session is "not started," never "missed." The thread stays open; a late reply counts. The next evening proceeds normally with no reference to it. Unanswered questions are logged as a tuning signal (which kinds go dead?). After five consecutive unanswered sessions: one email, "Paused. Reply `resume` whenever," and nothing more. This automatic pause lifts on `resume` or on any reply to any Simmer email. A pause the user asked for with `pause` lifts only on `resume`, so a late reply to an old thread never cuts a holiday short. Section 8 records which kind of pause applies.
 
 ## 8. Data model [decided in shape]
 
 Email is the transport, not the model. Every session is an ordered event stream so a future web view renders the same data.
 
 ```
-user           id, email, timezone, bedtime, cue_time, word_floor, word_target,
-               paused (bool), paused_at, created_at
+user           id, email, timezone, bedtime, cue_time, active_days (json, default all 7),
+               word_floor, word_target, paused_reason ('manual' | 'auto' | null),
+               paused_at, created_at
 brief          id, user_id, text, created_at            (current brief = latest row)
 prompt         id, user_id, brief_id, text, kind, follows_up_session_id (nullable),
                candidates (json), generated_at
@@ -91,7 +105,7 @@ session_event  id, session_id, seq, type, direction, channel, content, raw_conte
                word_count, occurred_at, provider_message_id, in_reply_to
 ```
 
-- `type` ∈ {prompt_sent, cue_sent, nudge_request, nudge_response, submission, receipt_sent, pause_sent}
+- `type` ∈ {prompt_sent, cue_sent, nudge_request, nudge_response, submission, receipt_sent, pause_sent}. Commands and setup are not session events; they change `user` or `brief`.
 - Inbound mail is attributed by `In-Reply-To`, never by date. Quoted history is stripped before classification; `raw_content` keeps the original.
 - Session status is derived from events. The piece is all submissions concatenated.
 - Every row has a timestamp.
@@ -106,7 +120,8 @@ Secondary, if primary passes: thirty sessions in roughly six weeks, then an hone
 
 - Cloudflare Workers + Cron Triggers; D1 for the tables above
 - Cloudflare Email Service for both directions: Email Routing sends mail for simmer@hultberg.org (an address rule on the existing hultberg.org setup) to the Worker's `email()` handler; mail goes out from the same address through the `send_email` binding, with `In-Reply-To`/`References` headers for threading. No API key.
-- Anthropic API for generation and nudges
+- Anthropic API for generation, nudges and receipts, using Claude Opus 5.5 (`claude-opus-5-5`). The prompt-generation eval decides whether a cheaper model is good enough.
+- Plain-text emails only: no HTML, no images, no tracking. They read like a letter, quote cleanly in replies, and are less likely to be filed as marketing.
 - Signup: email simmer@hultberg.org (see section 3); no signup page
 - Email address: simmer@hultberg.org. Any web part is a separate Worker at simmer.hultberg.org
 
@@ -121,7 +136,7 @@ Modes as a visible schedule, the people list, corpus revisits, the base/orbit di
 1. "Read MVP-IDEA.md. Propose a repo layout and a CLAUDE.md that encodes the six hard rules in section 5 as constraints on any code that calls the model."
 2. "Draft the prompt-generation system prompt from section 6. Write an eval: 10 briefs (including two 'I don't know yet'), generate a week of questions each, grade against section 6. Make the day-1 questions deliberately easy."
 3. "Implement the data model in D1 with migrations and the derived session view; test thread attribution, quote stripping, and the append rule."
-4. "Build the Worker's `email()` handler for inbound mail: drop senders not on the allowlist; parse the raw message, strip quotes; send the setup question to an allowlisted address with no user yet, and store the reply to it as the first brief; classify the rest (`stuck` last line / `brief:` first line, confirmed by quoting the new brief back / otherwise submission), attribute, store raw and clean."
+4. "Build the Worker's `email()` handler for inbound mail: drop senders not on the allowlist; parse the raw message, strip quotes; send the setup question to an allowlisted address with no user yet, and store the reply to it as the first brief; classify the rest in this order (command on the first line: `brief:`, `times:`, `weekdays:`, `pause`, `resume`, each confirmed by quoting back / `stuck` last line / otherwise submission), attribute, store raw and clean."
 5. "Build the two cron sends and the receipt, including the day-4 no-reply email and the pause logic."
 6. "Build the nudge responder with the post-check for rule 1 and the receipt's one-sentence observation with the post-check for rule 4."
 
