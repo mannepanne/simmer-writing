@@ -98,17 +98,20 @@ Archive serves as historical record. For current implementation details, see `RE
 
 ## Simmer's implementation phases
 
-**Current phase:** none started. Phases are not defined yet.
+**Current phase:** 1, question generation and eval ([01-question-generation.md](./01-question-generation.md)), specified, not started.
 
-The suggested order comes from [MVP-IDEA.md section 12](./ORIGINAL_IDEA/MVP-IDEA.md#12-first-prompts-for-claude-code). Question quality comes before any plumbing:
+Six phases. Question quality comes first; real email works from phase 3; the author starts using Simmer for real after phase 5.
 
-1. Prompt-generation system prompt and eval. The first phase that adds code, so it also scaffolds the project and updates the status lines in `README.md` and root `CLAUDE.md`
-2. D1 data model, migrations and the derived session view
-3. Inbound `email()` handler: allowlist, quote stripping, classification, commands, attribution. Creates the simmer@ routing rule, so this phase also updates `REFERENCE/environment-setup.md` and `REFERENCE/troubleshooting.md`
-4. Evening and morning sends, receipts, the day-4 email and pausing
-5. Nudge responder and receipt sentence, with post-checks for hard rules 1 and 4
+1. **[Question generation and eval](./01-question-generation.md).** Project scaffold, the generator system prompt and module, deterministic checks, and an eval centred on the author's own brief over 14 sessions, with a few other briefs over 7. Ends with the author's marks on their own questions. Also updates the status lines in `README.md` and root `CLAUDE.md`.
+2. **Data model.** Workers project and `wrangler.jsonc`, D1 with migrations for `user`, `brief`, `prompt`, `session` and `session_event`, the derived session view, and the Workers test pool. Tests for attribution by `In-Reply-To` and the append rule.
+3. **Email in and out, first deploy.** The `email()` handler: allowlist, quote stripping against real client samples, classification, commands (`brief:`, `times:`, `weekdays:`, `pause`, `resume`) with quoted-back confirmations, and the setup exchange. Outbound sending with threading headers, since setup and confirmations are emails. First deploy and the simmer@ routing rule, so the setup exchange works with real Gmail. Updates `REFERENCE/environment-setup.md` and `REFERENCE/troubleshooting.md`.
+4. **The daily loop.** Cron Triggers for evening and morning sends in each user's timezone, `weekdays:`, generation from phase 1 with fallbacks on, the receipt (word count, session number, week at a glance), the word floor, the day-4 no-reply email, and the automatic and manual pauses.
+5. **The reader.** The `stuck` nudge and the receipt's one sentence, each with a post-check in code for hard rules 1 and 4. The author starts using Simmer daily at the end of this phase.
+6. **Export and hardening.** Markdown export of all pieces (hard rule 6), logging of unanswered sessions as a tuning signal, a check of every email template against rule 5, and a docs sweep.
 
-Each becomes a numbered phase file (`01-…md`) based on [00-TEMPLATE-phase.md](./00-TEMPLATE-phase.md) when it is planned.
+The week-two test and the thirty-session test ([MVP-IDEA.md section 9](./ORIGINAL_IDEA/MVP-IDEA.md#9-the-test-decided)) happen after the build; they are not phase deliverables.
+
+Each phase gets a numbered spec based on [00-TEMPLATE-phase.md](./00-TEMPLATE-phase.md) when it is next up, reviewed with `/review-spec` before work starts.
 
 ### Supporting documentation
 
