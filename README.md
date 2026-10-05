@@ -37,3 +37,7 @@ No streaks, no missed-day counts, no comments on style. Your writing is yours an
 ## Working on it
 
 All changes go through a feature branch and a pull request, reviewed with the `/review-pr` skill. The project was set up from Magnus Hultberg's [project template for AI-assisted development](https://github.com/mannepanne/useful-assets-template), which supplies the collaboration guidance in `.claude/` and the review skills.
+
+## Licence
+
+[MIT](./LICENSE)
